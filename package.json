@@ -8,7 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "migrate:dev": "cd lambda/src && bunx dotenv -e .env.local bunx prisma migrate dev"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
