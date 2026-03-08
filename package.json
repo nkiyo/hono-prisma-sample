@@ -9,7 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "migrate:dev": "cd lambda/src && bunx dotenv -e .env.local bunx prisma migrate dev"
+    "migrate:dev": "cd lambda/src && bunx dotenv -e .env.local bunx prisma migrate dev",
+    "dev": "bunx dotenv -e ./lambda/src/.env.local bun run lambda/src/app.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
