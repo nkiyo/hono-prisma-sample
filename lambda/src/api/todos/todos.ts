@@ -29,7 +29,16 @@ const TodoSchema = z.object({
 const TodoUpdateSchema = TodoSchema.partial().omit({ userId: true });
 
 const todos = new Hono()
-  .post("/", zValidator("json", TodoSchema), async (c) => {
+  .post("/", zValidator("json", TodoSchema, (result, c) => {
+    console.log(`${result}`)
+    if (!result.success) {
+      console.error("### zod error ###")
+      console.error(result.error.format())
+      return c.json({ error: result.error.format() }, 401);
+    } else {
+      console.log("### zod ok ###")
+    }
+  }), async (c) => {
     const validatedData = c.req.valid("json");
 
     try {
