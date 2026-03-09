@@ -21,6 +21,7 @@ const dateSchema = z.string().refine(
 const TodoSchema = z.object({
   userId: z.string().min(1),
   title: z.string().min(1).max(100),
+  description: z.string().default(""),
   completed: z.boolean(),
   dueDate: dateSchema.optional(),
 });
