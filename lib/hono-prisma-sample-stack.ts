@@ -112,7 +112,7 @@ export class HonoPrismaSampleStack extends cdk.Stack {
       },
       timeout: cdk.Duration.seconds(30),
       memorySize: 1024,
-      architecture: lambda.Architecture.ARM_64,
+      architecture: lambda.Architecture.X86_64,
       bundling: {
         // commandHooksでインストール前、バンドル前、後にコマンドを組み込める
         commandHooks: {
@@ -125,7 +125,7 @@ export class HonoPrismaSampleStack extends cdk.Stack {
           afterBundling(inputDir: string, outputDir: string): string[] {
             return [
               // クエリエンジンを追加
-              `cp ${inputDir}/node_modules/.prisma/client/libquery_engine-linux-arm64-* ${outputDir}`,
+              `cp ${inputDir}/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node ${outputDir}`,
               // スキーマ定義を追加
               `cp ${inputDir}/lambda/src/prisma/schema.prisma ${outputDir}`,
             ];
@@ -145,7 +145,7 @@ export class HonoPrismaSampleStack extends cdk.Stack {
       this,
       "MigrationLambda",
       {
-        code: lambda.DockerImageCode.fromImageAsset("lambda", {
+        code: lambda.DockerImageCode.fromImageAsset("lambda/src", {
           file: "Dockerfile",
           cmd: ["migration.handler"],
         }),

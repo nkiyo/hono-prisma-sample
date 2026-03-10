@@ -10,7 +10,7 @@ RUN tsc migration.ts
 FROM public.ecr.aws/lambda/nodejs:20
 
 COPY --from=builder /app/migration.js ${LAMBDA_TASK_ROOT}/
-COPY src/prisma ${LAMBDA_TASK_ROOT}/
+COPY ./prisma ${LAMBDA_TASK_ROOT}/
 RUN npm i -g prisma
 
 CMD [ "migration.handler" ]
