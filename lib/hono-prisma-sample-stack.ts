@@ -29,9 +29,9 @@ export class HonoPrismaSampleStack extends cdk.Stack {
     super(scope, id, props);
 
     // 環境変数から値を取得
-    const databaseName = requireEnv("RDS_DATABASE_NAME");
-    const username = requireEnv("RDS_USERNAME");
-    const password = requireEnv("RDS_PASSWORD");
+    // const databaseName = requireEnv("RDS_DATABASE_NAME");
+    // const username = requireEnv("RDS_USERNAME");
+    // const password = requireEnv("RDS_PASSWORD");
 
     // VPCの作成
     const vpc = new ec2.Vpc(this, "TodoAppVpc", {
@@ -40,42 +40,42 @@ export class HonoPrismaSampleStack extends cdk.Stack {
     });
 
     // RDSのセキュリティグループ
-    const dbSecurityGroup = new ec2.SecurityGroup(this, "DbSecurityGroup", {
-      vpc,
-      description: "Security group for Aurora database",
-      allowAllOutbound: true,
-    });
+    // const dbSecurityGroup = new ec2.SecurityGroup(this, "DbSecurityGroup", {
+    //   vpc,
+    //   description: "Security group for Aurora database",
+    //   allowAllOutbound: true,
+    // });
 
     // Aurora MySQL クラスターの作成
-    const cluster = new rds.DatabaseCluster(this, "TodoDatabase", {
-      engine: rds.DatabaseClusterEngine.auroraMysql({
-        version: rds.AuroraMysqlEngineVersion.VER_3_07_1,
-      }),
-      serverlessV2MinCapacity: 0.5,
-      serverlessV2MaxCapacity: 1,
-      credentials: {
-        username: username,
-        password: cdk.SecretValue.unsafePlainText(password),
-      },
-      writer: rds.ClusterInstance.serverlessV2("writer", {
-        autoMinorVersionUpgrade: false,
-        instanceIdentifier: "hono-db-writer",
-        publiclyAccessible: false,
-      }),
-      vpc,
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-      },
-      securityGroups: [dbSecurityGroup],
-      defaultDatabaseName: databaseName,
-      // バックアップ保持期間（日数）
-      backup: {
-        retention: cdk.Duration.days(7),
-      },
-      // 削除保護（本番環境では true にすることを推奨）
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      enableDataApi: true,
-    });
+    // const cluster = new rds.DatabaseCluster(this, "TodoDatabase", {
+    //   engine: rds.DatabaseClusterEngine.auroraMysql({
+    //     version: rds.AuroraMysqlEngineVersion.VER_3_07_1,
+    //   }),
+    //   serverlessV2MinCapacity: 0.5,
+    //   serverlessV2MaxCapacity: 1,
+    //   credentials: {
+    //     username: username,
+    //     password: cdk.SecretValue.unsafePlainText(password),
+    //   },
+    //   writer: rds.ClusterInstance.serverlessV2("writer", {
+    //     autoMinorVersionUpgrade: false,
+    //     instanceIdentifier: "hono-db-writer",
+    //     publiclyAccessible: false,
+    //   }),
+    //   vpc,
+    //   vpcSubnets: {
+    //     subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+    //   },
+    //   securityGroups: [dbSecurityGroup],
+    //   defaultDatabaseName: databaseName,
+    //   // バックアップ保持期間（日数）
+    //   backup: {
+    //     retention: cdk.Duration.days(7),
+    //   },
+    //   // 削除保護（本番環境では true にすることを推奨）
+    //   removalPolicy: cdk.RemovalPolicy.DESTROY,
+    //   enableDataApi: true,
+    // });
 
     // Lambda関数のセキュリティグループ
     const lambdaSecurityGroup = new ec2.SecurityGroup(
@@ -89,11 +89,11 @@ export class HonoPrismaSampleStack extends cdk.Stack {
     );
 
     // セキュリティグループ間の通信許可
-    dbSecurityGroup.addIngressRule(
-      lambdaSecurityGroup,
-      ec2.Port.tcp(3306),
-      "Allow Lambda to access Aurora MySQL"
-    );
+    // dbSecurityGroup.addIngressRule(
+    //   lambdaSecurityGroup,
+    //   ec2.Port.tcp(3306),
+    //   "Allow Lambda to access Aurora MySQL"
+    // );
 
     // Lambda関数の作成
     const honoLambda = new NodejsFunction(this, "lambda", {
@@ -108,30 +108,30 @@ export class HonoPrismaSampleStack extends cdk.Stack {
       environment: {
         BASIC_USERNAME: requireEnv("BASIC_USERNAME"),
         BASIC_PASSWORD: requireEnv("BASIC_PASSWORD"),
-        DATABASE_URL: `mysql://${username}:${password}@${cluster.clusterEndpoint.hostname}:${cluster.clusterEndpoint.port}/${databaseName}`,
+        // DATABASE_URL: `mysql://${username}:${password}@${cluster.clusterEndpoint.hostname}:${cluster.clusterEndpoint.port}/${databaseName}`,
       },
       timeout: cdk.Duration.seconds(30),
-      memorySize: 1024,
-      architecture: lambda.Architecture.X86_64,
-      bundling: {
-        // commandHooksでインストール前、バンドル前、後にコマンドを組み込める
-        commandHooks: {
-          beforeInstall(inputDir: string, outputDir: string): string[] {
-            return [``];
-          },
-          beforeBundling(inputDir: string, outputDir: string): string[] {
-            return [``];
-          },
-          afterBundling(inputDir: string, outputDir: string): string[] {
-            return [
-              // クエリエンジンを追加
-              `cp ${inputDir}/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node ${outputDir}`,
-              // スキーマ定義を追加
-              `cp ${inputDir}/lambda/src/prisma/schema.prisma ${outputDir}`,
-            ];
-          },
-        },
-      },
+      // memorySize: 1024,
+      // architecture: lambda.Architecture.X86_64,
+      // bundling: {
+      //   // commandHooksでインストール前、バンドル前、後にコマンドを組み込める
+      //   commandHooks: {
+      //     beforeInstall(inputDir: string, outputDir: string): string[] {
+      //       return [``];
+      //     },
+      //     beforeBundling(inputDir: string, outputDir: string): string[] {
+      //       return [``];
+      //     },
+      //     afterBundling(inputDir: string, outputDir: string): string[] {
+      //       return [
+      //         // クエリエンジンを追加
+      //         `cp ${inputDir}/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node ${outputDir}`,
+      //         // スキーマ定義を追加
+      //         `cp ${inputDir}/lambda/src/prisma/schema.prisma ${outputDir}`,
+      //       ];
+      //     },
+      //   },
+      // },
     });
 
     // API Gatewayの作成
@@ -141,59 +141,59 @@ export class HonoPrismaSampleStack extends cdk.Stack {
     });
 
     // マイグレーション用のLambda関数
-    const migrationLambda = new lambda.DockerImageFunction(
-      this,
-      "MigrationLambda",
-      {
-        code: lambda.DockerImageCode.fromImageAsset("lambda/src", {
-          file: "Dockerfile",
-          cmd: ["migration.handler"],
-        }),
-        vpc,
-        vpcSubnets: {
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        },
-        securityGroups: [lambdaSecurityGroup],
-        environment: {
-          DATABASE_URL: `mysql://${username}:${password}@${cluster.clusterEndpoint.hostname}:${cluster.clusterEndpoint.port}/${databaseName}`,
-        },
-        timeout: cdk.Duration.minutes(15),
-        memorySize: 1024,
-        architecture: lambda.Architecture.ARM_64,
-      }
-    );
+    // const migrationLambda = new lambda.DockerImageFunction(
+    //   this,
+    //   "MigrationLambda",
+    //   {
+    //     code: lambda.DockerImageCode.fromImageAsset("lambda/src", {
+    //       file: "Dockerfile",
+    //       cmd: ["migration.handler"],
+    //     }),
+    //     vpc,
+    //     vpcSubnets: {
+    //       subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+    //     },
+    //     securityGroups: [lambdaSecurityGroup],
+    //     environment: {
+    //       DATABASE_URL: `mysql://${username}:${password}@${cluster.clusterEndpoint.hostname}:${cluster.clusterEndpoint.port}/${databaseName}`,
+    //     },
+    //     timeout: cdk.Duration.minutes(15),
+    //     memorySize: 1024,
+    //     architecture: lambda.Architecture.ARM_64,
+    //   }
+    // );
 
     // 最新のマイグレーションファイル名を取得
-    const migrationsDir = path.join(
-      __dirname,
-      "../lambda/src/prisma/migrations"
-    );
-    const latestMigration = fs
-      .readdirSync(migrationsDir)
-      .filter((file) => file !== "migration_lock.toml")
-      .sort((a, b) => b.localeCompare(a))[0];
+    // const migrationsDir = path.join(
+    //   __dirname,
+    //   "../lambda/src/prisma/migrations"
+    // );
+    // const latestMigration = fs
+    //   .readdirSync(migrationsDir)
+    //   .filter((file) => file !== "migration_lock.toml")
+    //   .sort((a, b) => b.localeCompare(a))[0];
 
-    console.log(latestMigration);
+    // console.log(latestMigration);
 
     // カスタムリソースプロバイダーの作成
-    const provider = new cr.Provider(this, "MigrationProvider", {
-      onEventHandler: migrationLambda,
-    });
+    // const provider = new cr.Provider(this, "MigrationProvider", {
+    //   onEventHandler: migrationLambda,
+    // });
 
     // カスタムリソースの作成
-    const migrationCustomResource = new cdk.CustomResource(
-      this,
-      "MigrationCustomResource",
-      {
-        serviceToken: provider.serviceToken,
-        properties: {
-          latestMigration: latestMigration,
-        },
-      }
-    );
+    // const migrationCustomResource = new cdk.CustomResource(
+    //   this,
+    //   "MigrationCustomResource",
+    //   {
+    //     serviceToken: provider.serviceToken,
+    //     properties: {
+    //       latestMigration: latestMigration,
+    //     },
+    //   }
+    // );
 
     // 明示的な依存関係の追加
-    migrationCustomResource.node.addDependency(cluster);
+    // migrationCustomResource.node.addDependency(cluster);
 
     // 出力の設定
     new cdk.CfnOutput(this, "ApiEndpoint", {

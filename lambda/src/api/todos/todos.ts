@@ -3,9 +3,9 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { PrismaClient } from "@prisma/client"
+// import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 // カスタムZodスキーマ for YYYY-MM-DD形式の日付
 const dateSchema = z.string().refine(
@@ -42,14 +42,15 @@ const todos = new Hono()
     const validatedData = c.req.valid("json");
 
     try {
-      const todo = await prisma.todo.create({
-        data: {
-          ...validatedData,
-          dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
-        },
-      });
+      // const todo = await prisma.todo.create({
+      //   data: {
+      //     ...validatedData,
+      //     dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
+      //   },
+      // });
 
-      return c.json({ message: "Todo created successfully", todo }, 201);
+      // return c.json({ message: "Todo created successfully", todo }, 201);
+      return c.json({message: `Todo created successfully ${JSON.stringify(validatedData)}`}, 201);
     } catch (error) {
       console.error(error);
       return c.json({ error: "Failed to create todo" }, 500);
@@ -59,12 +60,13 @@ const todos = new Hono()
     const userId = c.req.param("userId");
 
     try {
-      const todos = await prisma.todo.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-      });
+      // const todos = await prisma.todo.findMany({
+      //   where: { userId },
+      //   orderBy: { createdAt: "desc" },
+      // });
 
-      return c.json(todos);
+      // return c.json(todos);
+      return c.json({message: `Todo get userId=${userId} successfully`}, 200);
     } catch (error) {
       console.error(error);
       return c.json({ error: "Failed to retrieve todos" }, 500);
@@ -74,52 +76,53 @@ const todos = new Hono()
     const id = c.req.param("id");
 
     try {
-      const todo = await prisma.todo.findUnique({
-        where: { id },
-      });
+      // const todo = await prisma.todo.findUnique({
+      //   where: { id },
+      // });
 
-      if (!todo) {
-        return c.json({ error: "Todo not found" }, 404);
-      }
+      // if (!todo) {
+      //   return c.json({ error: "Todo not found" }, 404);
+      // }
 
-      return c.json(todo);
+      // return c.json(todo);
+      return c.json({message: `Todo get id=${id} successfully`}, 200);
     } catch (error) {
       console.error(error);
       return c.json({ error: "Failed to retrieve todo" }, 500);
     }
   })
-  .put("/:id", zValidator("json", TodoUpdateSchema), async (c) => {
-    const id = c.req.param("id");
-    const validatedData = c.req.valid("json");
+  // .put("/:id", zValidator("json", TodoUpdateSchema), async (c) => {
+  //   const id = c.req.param("id");
+  //   const validatedData = c.req.valid("json");
 
-    try {
-      const todo = await prisma.todo.update({
-        where: { id },
-        data: {
-          ...validatedData,
-          dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : undefined,
-        },
-      });
+  //   try {
+  //     const todo = await prisma.todo.update({
+  //       where: { id },
+  //       data: {
+  //         ...validatedData,
+  //         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : undefined,
+  //       },
+  //     });
 
-      return c.json(todo);
-    } catch (error) {
-      console.error(error);
-      return c.json({ error: "Failed to update todo" }, 500);
-    }
-  })
-  .delete("/:id", async (c) => {
-    const id = c.req.param("id");
+  //     return c.json(todo);
+  //   } catch (error) {
+  //     console.error(error);
+  //     return c.json({ error: "Failed to update todo" }, 500);
+  //   }
+  // })
+  // .delete("/:id", async (c) => {
+  //   const id = c.req.param("id");
 
-    try {
-      await prisma.todo.delete({
-        where: { id },
-      });
+  //   try {
+  //     await prisma.todo.delete({
+  //       where: { id },
+  //     });
 
-      return c.json({ message: "Todo deleted successfully" });
-    } catch (error) {
-      console.error(error);
-      return c.json({ error: "Failed to delete todo" }, 500);
-    }
-  });
+  //     return c.json({ message: "Todo deleted successfully" });
+  //   } catch (error) {
+  //     console.error(error);
+  //     return c.json({ error: "Failed to delete todo" }, 500);
+  //   }
+  // });
 
 export { todos };
