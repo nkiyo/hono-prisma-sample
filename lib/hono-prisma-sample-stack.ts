@@ -32,13 +32,13 @@ export class HonoPrismaSampleStack extends cdk.Stack {
       }
     });
     const userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
-  userPool,
-  generateSecret: false,
-  authFlows: {
-    userPassword: true,
-    userSrp: true,
-  },
-});
+      userPool,
+      generateSecret: false,
+      authFlows: {
+        userPassword: true,
+        userSrp: true,
+      },
+    });
 
     // Authorizor
     const authorizer = new apigw.CognitoUserPoolsAuthorizer(this, "Authorizer", {
