@@ -6,6 +6,7 @@ import * as apigw from "aws-cdk-lib/aws-apigateway";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as dotenv from "dotenv";
 import path = require("path");
+import * as cognito from "aws-cdk-lib/aws-cognito";
 
 // 環境変数の読み込み
 dotenv.config();
@@ -23,6 +24,26 @@ function requireEnv(name: string): string {
 export class HonoPrismaSampleStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    // UserPool
+    const userPool = new cognito.UserPool(this, "UserPool", {
+      signInAliases: {
+        email: true,
+      }
+    });
+    const userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
+  userPool,
+  generateSecret: false,
+  authFlows: {
+    userPassword: true,
+    userSrp: true,
+  },
+});
+
+    // Authorizor
+    const authorizer = new apigw.CognitoUserPoolsAuthorizer(this, "Authorizer", {
+      cognitoUserPools: [userPool],
+    })
 
     // VPCの作成
     const vpc = new ec2.Vpc(this, "TodoAppVpc", {
@@ -62,6 +83,10 @@ export class HonoPrismaSampleStack extends cdk.Stack {
     const apiGw = new apigw.LambdaRestApi(this, "honoApi", {
       handler: honoLambda,
       proxy: true,
+      defaultMethodOptions: {
+        authorizer,
+        authorizationType: apigw.AuthorizationType.COGNITO,
+      }
     });
 
     // 出力の設定
